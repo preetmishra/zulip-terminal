@@ -3,13 +3,14 @@ import platform
 import subprocess
 import time
 from collections import OrderedDict, defaultdict
+from contextlib import contextmanager
 from functools import wraps
 from itertools import chain, combinations
 from re import ASCII, match
 from threading import Thread
 from typing import (
-    Any, Callable, DefaultDict, Dict, FrozenSet, Iterable, List, Set, Tuple,
-    TypeVar, Union,
+    Any, Callable, DefaultDict, Dict, FrozenSet, Iterable, Iterator, List, Set,
+    Tuple, TypeVar, Union,
 )
 from urllib.parse import unquote
 
@@ -647,3 +648,21 @@ def hash_util_decode(string: str) -> str:
     # Acknowledge custom string replacements in zulip/zulip's
     # zerver/lib/url_encoding.py before unquote.
     return unquote(string.replace('.', '%'))
+
+
+@contextmanager
+def suppress_output() -> Iterator[None]:
+    """Context manager to redirect stdout and stderr to /dev/null.
+
+    Adapted from https://stackoverflow.com/a/2323563
+    """
+    out = os.dup(1)
+    err = os.dup(2)
+    os.close(1)
+    os.close(2)
+    os.open(os.devnull, os.O_RDWR)
+    try:
+        yield
+    finally:
+        os.dup2(out, 1)
+        os.dup2(err, 2)

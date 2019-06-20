@@ -12,7 +12,7 @@ import urwid
 import zulip
 
 from zulipterminal.config.themes import ThemeSpec
-from zulipterminal.helper import Message, asynch
+from zulipterminal.helper import Message, asynch, suppress_output
 from zulipterminal.model import Model
 from zulipterminal.ui import Screen, View
 from zulipterminal.ui_tools.utils import create_msg_box_list
@@ -304,7 +304,9 @@ class Controller:
                 and not os.environ.get('DISPLAY') and os.environ.get('TERM')):
             # Don't try to open web browser if running without a GUI
             return
-        webbrowser.open(url)
+        with suppress_output():
+            # Suppress anything on stdout or stderr when opening the browser
+            webbrowser.open(url)
 
     def deregister_client(self) -> None:
         queue_id = self.model.queue_id
