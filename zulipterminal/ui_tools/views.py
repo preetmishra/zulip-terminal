@@ -620,9 +620,10 @@ class RightColumnView(urwid.Frame):
             return key
         elif is_command_key('GO_BACK', key):
             self.allow_update_user_list = True
-            self.body = UsersView(self.users_btn_list)
-            self.set_body(self.body)
+            self.body.log.clear()
+            self.body.log.extend(self.users_btn_list)
             self.set_focus('body')
+            self.body.log.set_focus(0)
             self.view.controller.update_screen()
             return key
         elif is_command_key('GO_LEFT', key):
