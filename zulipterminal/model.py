@@ -822,7 +822,8 @@ class Model:
         Handle change to reactions on a message
         """
         message_id = event['message_id']
-        # If the message is indexed
+        # If the message is indexed; self.index['messages'] is a
+        # defaultdict(dict).
         if self.index['messages'][message_id] != {}:
 
             message = self.index['messages'][message_id]

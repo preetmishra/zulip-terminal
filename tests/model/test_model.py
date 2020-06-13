@@ -1108,10 +1108,32 @@ class TestModel:
         assert update_emoji == response['emoji_code']
         self.controller.update_screen.assert_called_once_with()
 
-        # TEST FOR FALSE CASES
-        model.index['messages'][1] = {}
+    @pytest.mark.parametrize('response, index', [
+        ({'emoji_code': '1f44d',
+          'id': 2,
+          'user': {
+              'email': 'Foo@zulip.com',
+              'user_id': 5140,
+              'full_name': 'Foo Boo'
+          },
+          'reaction_type': 'unicode_emoji',
+          'message_id': 1,
+          'emoji_name': 'thumbs_up',
+          'type': 'reaction',
+          'op': 'add'
+          }, {
+            'messages': {
+                1: {},
+            }
+          }),
+    ])
+    def test__handle_reaction_event_empty_index(self, mocker, model, response,
+                                                index):
+        model.index = index
+
         model._handle_reaction_event(response)
-        # If there was no message earlier then don't update
+
+        # Do not make any changes if the message does not exist in index.
         assert model.index['messages'][1] == {}
 
     @pytest.mark.parametrize('response, index', [
