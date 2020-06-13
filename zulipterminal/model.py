@@ -837,11 +837,13 @@ class Model:
                 )
             else:
                 emoji_code = event['emoji_code']
+                user_id = event['user']['user_id']
                 for reaction in message['reactions']:
-                    # Since Who reacted is not displayed,
-                    # remove the first one encountered
                     if reaction['emoji_code'] == emoji_code:
-                        message['reactions'].remove(reaction)
+                        if (reaction['user'].get('user_id') == user_id
+                                or reaction['user'].get('id') == user_id):
+                            message['reactions'].remove(reaction)
+                            break
 
             self.index['messages'][message_id] = message
             self._update_rendered_view(message_id)

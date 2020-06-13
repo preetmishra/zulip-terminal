@@ -1152,10 +1152,34 @@ class TestModel:
                         'content': "Boo is not Foo",
                         'reactions': [],
                     }
+            }}, 1),
+            ({'messages': {
+                    1: {
+                        'id': 1,
+                        'content': 'Hey, I am using Zulip Terminal!',
+                        'reactions': [
+                            {
+                                'user': {
+                                    'email': 'Foo@zulip.com',
+                                    'user_id': 5140,
+                                    'full_name': 'Foo Boo'
+                                },
+                                'reaction_type': 'unicode_emoji',
+                                'emoji_code': '1f44d',
+                                'emoji_name': 'thumbs_up'
+                            }
+                        ],
+                    },
+                    2: {
+                        'id': 2,
+                        'content': "Boo is not Foo",
+                        'reactions': [],
+                    }
             }}, 0),
         ],
         ids=[
             'different_user_ids',
+            'identical_user_ids',
         ]
     )
     def test__handle_reaction_event_remove_reaction(self, mocker, model,
