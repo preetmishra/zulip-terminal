@@ -1126,7 +1126,7 @@ class TestModel:
           'message_id': 1,
           'emoji_name': 'thumbs_up',
           'type': 'reaction',
-          'op': 'add'
+          'op': 'remove'
           }, {
             'messages': {
                 1: {
@@ -1164,7 +1164,6 @@ class TestModel:
                      return_value=[mock_msg])
 
         # Test removing of reaction.
-        response['op'] = 'remove'
         model._handle_reaction_event(response)
         assert len(model.index['messages'][1]['reactions']) == 1
 
