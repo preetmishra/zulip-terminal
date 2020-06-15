@@ -1114,7 +1114,7 @@ class TestModel:
         # If there was no message earlier then don't update
         assert model.index['messages'][1] == {}
 
-    @pytest.mark.parametrize('response, index', [
+    @pytest.mark.parametrize('response', [
         ({'emoji_code': '1f44d',
           'id': 2,
           'user': {
@@ -1127,33 +1127,40 @@ class TestModel:
           'emoji_name': 'thumbs_up',
           'type': 'reaction',
           'op': 'remove'
-          }, {
-            'messages': {
-                1: {
-                    'id': 1,
-                    'content': 'Boo is Foo',
-                    'reactions': [
-                        {
-                            'user': {
-                                'email': 'Foo@zulip.com',
-                                'user_id': 1,
-                                'full_name': 'Foo Boo'
-                            },
-                            'reaction_type': 'unicode_emoji',
-                            'emoji_code': '1f44d',
-                            'emoji_name': 'thumbs_up'
-                        }
-                    ],
-                },
-                2: {
-                    'id': 2,
-                    'content': "Boo is not Foo",
-                    'reactions': [],
-                }
-            }
-        })])
+          }),
+    ])
+    @pytest.mark.parametrize('index, expected_len', [
+            ({'messages': {
+                    1: {
+                        'id': 1,
+                        'content': 'Boo is Foo',
+                        'reactions': [
+                            {
+                                'user': {
+                                    'email': 'Foo@zulip.com',
+                                    'user_id': 1,
+                                    'full_name': 'Foo Boo'
+                                },
+                                'reaction_type': 'unicode_emoji',
+                                'emoji_code': '1f44d',
+                                'emoji_name': 'thumbs_up'
+                            }
+                        ],
+                    },
+                    2: {
+                        'id': 2,
+                        'content': "Boo is not Foo",
+                        'reactions': [],
+                    }
+            }}, 0),
+        ],
+        ids=[
+            'different_user_ids',
+        ]
+    )
     def test__handle_reaction_event_remove_reaction(self, mocker, model,
-                                                    response, index):
+                                                    response, index,
+                                                    expected_len):
         model.index = index
         mock_msg = mocker.Mock()
         another_msg = mocker.Mock()
@@ -1165,7 +1172,7 @@ class TestModel:
 
         # Test removing of reaction.
         model._handle_reaction_event(response)
-        assert len(model.index['messages'][1]['reactions']) == 0
+        assert len(model.index['messages'][1]['reactions']) == expected_len
 
     def test_update_star_status_no_index(self, mocker, model):
         model.index = dict(messages={})  # Not indexed
