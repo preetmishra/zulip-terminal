@@ -1140,7 +1140,7 @@ class TestModel:
                                 'full_name': 'Foo Boo'
                             },
                             'reaction_type': 'unicode_emoji',
-                            'emoji_code': '1232',
+                            'emoji_code': '1f44d',
                             'emoji_name': 'thumbs_up'
                         }
                     ],
@@ -1165,7 +1165,7 @@ class TestModel:
 
         # Test removing of reaction.
         model._handle_reaction_event(response)
-        assert len(model.index['messages'][1]['reactions']) == 1
+        assert len(model.index['messages'][1]['reactions']) == 0
 
     def test_update_star_status_no_index(self, mocker, model):
         model.index = dict(messages={})  # Not indexed
