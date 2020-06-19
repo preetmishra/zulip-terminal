@@ -2,6 +2,7 @@ import os
 import platform
 import subprocess
 import time
+import urllib
 from collections import OrderedDict, defaultdict
 from contextlib import contextmanager
 from functools import wraps
@@ -666,3 +667,63 @@ def suppress_output() -> Iterator[None]:
     finally:
         os.dup2(out, 1)
         os.dup2(err, 2)
+
+
+def hash_util_encode(string: str) -> str:
+    return urllib.parse.quote(
+        string.encode('utf-8'), safe=b'').replace('.', '%2E').replace('%', '.')
+
+
+def encode_stream(stream_id: int, stream_name: str) -> str:
+    stream_name = stream_name.replace(' ', '-')
+    return str(stream_id) + '-' + hash_util_encode(stream_name)
+
+
+def near_stream_message_url(server_url: str, message: Message) -> str:
+    message_id = str(message['id'])
+    stream_id = message['stream_id']
+    stream_name = message['display_recipient']
+    topic_name = message['subject']
+    encoded_stream = encode_stream(stream_id, stream_name)
+    encoded_topic = hash_util_encode(topic_name)
+
+    parts = [
+        server_url,
+        '#narrow',
+        'stream',
+        encoded_stream,
+        'topic',
+        encoded_topic,
+        'near',
+        message_id,
+    ]
+    full_url = '/'.join(parts)
+    return full_url
+
+
+def near_pm_message_url(server_url: str, message: Message) -> str:
+    message_id = str(message['id'])
+    str_user_ids = [
+        str(recipient['id'])
+        for recipient in message['display_recipient']
+    ]
+
+    pm_str = ','.join(str_user_ids) + '-pm'
+    parts = [
+        server_url,
+        '#narrow',
+        'pm-with',
+        pm_str,
+        'near',
+        message_id,
+    ]
+    full_url = '/'.join(parts)
+    return full_url
+
+
+def near_message_url(server_url: str, message: Message) -> str:
+    if message['type'] == 'stream':
+        url = near_stream_message_url(server_url, message)
+    else:
+        url = near_pm_message_url(server_url, message)
+    return url
