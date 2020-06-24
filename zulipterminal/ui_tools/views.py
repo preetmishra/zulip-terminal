@@ -6,7 +6,7 @@ from typing import Any, Callable, Dict, List, Optional, Sequence, Tuple, Union
 import urwid
 
 from zulipterminal.config.keys import (
-    HELP_CATEGORIES, KEY_BINDINGS, is_command_key,
+    HELP_CATEGORIES, KEY_BINDINGS, is_command_key, keys_for_command,
 )
 from zulipterminal.config.symbols import (
     CHECK_MARK, LIST_TITLE_BAR_LINE, PINNED_STREAMS_DIVIDER,
@@ -1092,7 +1092,10 @@ class MsgInfoView(PopUpView):
         msg_info = [
             ('', [('Date & Time', time.ctime(msg['timestamp'])[:-5]),
                   ('Sender', msg['sender_full_name']),
-                  ('Sender\'s Email ID', msg['sender_email'])]),
+                  ('Sender\'s Email ID', msg['sender_email']),
+                  ('View message in the web browser', 'Press {}'.format(
+                   ', '.join(map(repr, keys_for_command('VIEW_IN_BROWSER'))))),
+                  ]),
         ]
         # Render the category using the existing table methods if links exist.
         if message_links:
@@ -1132,11 +1135,16 @@ class MsgInfoView(PopUpView):
                     MessageLinkButton(controller, caption, link, display_attr)
                 )
 
-            # 5 = 3 labels + 1 newline + 1 'Message Links' category label.
-            widgets = widgets[:5] + message_link_widgets + widgets[5:]
+            # 6 = 4 labels + 1 newline + 1 'Message Links' category label.
+            widgets = widgets[:6] + message_link_widgets + widgets[6:]
             popup_width = max(popup_width, message_link_width)
 
         super().__init__(controller, widgets, 'MSG_INFO', popup_width, title)
+
+    def keypress(self, size: urwid_Size, key: str) -> str:
+        if is_command_key('VIEW_IN_BROWSER', key):
+            self.controller.view_in_browser(self.msg['id'])
+        return super().keypress(size, key)
 
 
 class EditModeView(PopUpView):
