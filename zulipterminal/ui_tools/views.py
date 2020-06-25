@@ -1143,7 +1143,7 @@ class MsgInfoView(PopUpView):
 
     def keypress(self, size: urwid_Size, key: str) -> str:
         if is_command_key('VIEW_IN_BROWSER', key):
-            self.controller.view_in_browser(self.msg['id'])
+            self.controller.view_in_browser(self.msg)
         return super().keypress(size, key)
 
 

@@ -12,7 +12,9 @@ import urwid
 import zulip
 
 from zulipterminal.config.themes import ThemeSpec
-from zulipterminal.helper import MACOS, WSL, Message, asynch, suppress_output
+from zulipterminal.helper import (
+    MACOS, WSL, Message, asynch, near_message_url, suppress_output,
+)
 from zulipterminal.model import Model
 from zulipterminal.ui import Screen, View
 from zulipterminal.ui_tools.utils import create_msg_box_list
@@ -298,15 +300,16 @@ class Controller:
                         anchor=None,
                         mentioned=True)
 
-    def view_in_browser(self, message_id: int) -> None:
-        url = '{}#narrow/near/{}'.format(self.model.server_url, message_id)
+    def view_in_browser(self, message: Message) -> None:
+        # Truncate extra '/' from the server url.
+        self.url = near_message_url(self.model.server_url[:-1], message)
         if (not MACOS and not WSL and not os.environ.get('DISPLAY')
                 and os.environ.get('TERM')):
             # Don't try to open web browser if running without a GUI
             return
         with suppress_output():
             # Suppress anything on stdout or stderr when opening the browser
-            webbrowser.open(url)
+            webbrowser.open(self.url)
 
     def deregister_client(self) -> None:
         queue_id = self.model.queue_id

@@ -1526,7 +1526,7 @@ class TestMsgInfoView:
         size = (200, 20)
         self.msg_info_view.keypress(size, key)
         (self.controller.view_in_browser.
-         assert_called_once_with(message_fixture['id']))
+         assert_called_once_with(message_fixture))
 
     def test_height_noreactions(self):
         expected_height = 4
