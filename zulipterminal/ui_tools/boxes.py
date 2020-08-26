@@ -23,7 +23,7 @@ from zulipterminal.helper import (
     Message, format_string, match_emoji, match_group, match_stream,
     match_topics, match_user,
 )
-from zulipterminal.ui_tools.tables import render_table
+from zulipterminal.ui_tools.tables import render_table, row_with_only_border
 from zulipterminal.urwid_types import urwid_Size
 
 
@@ -849,6 +849,39 @@ class MessageBox(urwid.Pile):
                     'Original text was {}'.format(element.text.strip())
                 )
                 self.time_mentions.append((time_string, source_text))
+            elif (element.name == 'div' and element.attrs
+                  and 'spoiler-block' in element.attrs.get('class', [])):
+                # SPOILERS
+                # Spoiler header.
+                header = element.find(class_='spoiler-header')
+                # Remove all the newlines.
+                header.contents = [
+                    part for part in header.contents if part != '\n'
+                ]
+
+                # Patch header with the deafult header content if it is empty.
+                if not header.contents:
+                    default = BeautifulSoup('<p>Spoiler</p>', 'html.parser')
+                    header.contents.append(default)
+
+                processed_header = self.soup2markup(header)
+                processed_header_len = sum(
+                    len(part[1]) if isinstance(part, tuple) else len(part)
+                    for part in processed_header
+                )
+                marker = 'Spoiler:'
+
+                widths = [len(marker), processed_header_len]
+                top_border = row_with_only_border('┌', '─', '┬', '┐', widths)
+                bottom_border = row_with_only_border('└', '─', '┴', '┘',
+                                                     widths, newline=False)
+                markup.extend(top_border)
+                markup.extend([
+                    '│ ', ('msg_spoiler', marker), ' │ ',
+                    *processed_header,
+                    ' │\n',
+                ])
+                markup.extend(bottom_border)
             else:
                 markup.extend(self.soup2markup(element))
         return markup

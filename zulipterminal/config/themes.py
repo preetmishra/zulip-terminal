@@ -34,6 +34,7 @@ required_styles = {  # style-name: monochrome-bit-depth-style
     'msg_code': 'bold',
     'msg_bold': 'bold',
     'msg_time': 'bold',
+    'msg_spoiler': 'bold',
     'footer': 'standout',
     'starred': 'bold',
     'popup_category': 'bold',
@@ -75,6 +76,7 @@ LIGHTBLUEBOLD = '%s, bold' % LIGHTBLUE
 YELLOW = 'h172'  # neutral_yellow
 YELLOWBOLD = '%s, bold' % YELLOW
 LIGHTGREEN = 'h142'  # bright_green
+LIGHTGREENBOLD = '%s, bold' % LIGHTGREEN
 LIGHTRED = 'h167'  # bright_red
 LIGHTREDBOLD = '%s, bold' % LIGHTRED
 GRAY = 'h244'  # gray_244
@@ -142,6 +144,8 @@ THEMES = {
          None,             DEF['white:bold'],         DEF['black']),
         ('msg_time',       'black',                   'white',
          None,             DEF['black'],              DEF['white']),
+        ('msg_spoiler',    'light green, bold',       'black',
+         None,             DEF['light_green:bold'],   DEF['black']),
         ('footer',         'white',                   'dark red',
          None,             DEF['white'],              DEF['dark_red']),
         ('starred',        'light red, bold',         'black',
@@ -210,6 +214,8 @@ THEMES = {
          None,             WHITEBOLD,         BLACK),
         ('msg_time',       'black',           'white',
          None,             BLACK,             WHITE),
+        ('msg_spoiler',    'light green, bold', 'black',
+         None,             LIGHTGREENBOLD,    BLACK),
         ('footer',         'white',           'dark red',
          None,             WHITE,             DARKRED),
         ('starred',        'light red, bold', 'black',
@@ -250,6 +256,7 @@ THEMES = {
         ('msg_code',       'black',           'light gray'),
         ('msg_bold',       'white, bold',     'dark gray'),
         ('msg_time',       'white',           'dark gray'),
+        ('msg_spoiler',    'light green, bold', 'white'),
         ('footer',         'white',           'dark red'),
         ('starred',        'light red, bold', 'white'),
         ('popup_category', 'dark gray, bold', 'light gray'),
@@ -284,6 +291,7 @@ THEMES = {
         ('msg_code',       'dark blue',       'white'),
         ('msg_bold',       'white, bold',     'dark blue'),
         ('msg_time',       'dark blue',       'white'),
+        ('msg_spoiler',    'light green, bold', 'light blue'),
         ('footer',         'white',           'dark red'),
         ('starred',        'light red, bold', 'light blue'),
         ('popup_category', 'light gray, bold', 'light blue'),
