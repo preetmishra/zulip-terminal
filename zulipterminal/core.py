@@ -17,7 +17,7 @@ from zulipterminal.ui import Screen, View
 from zulipterminal.ui_tools.utils import create_msg_box_list
 from zulipterminal.ui_tools.views import (
     AboutView, HelpView, MsgInfoView, NoticeView, PopUpConfirmationView,
-    StreamInfoView,
+    SpoilerView, StreamInfoView,
 )
 from zulipterminal.version import ZT_VERSION
 
@@ -140,10 +140,11 @@ class Controller:
     def show_msg_info(self, msg: Message,
                       message_links: 'OrderedDict[str, Tuple[str, int, bool]]',
                       time_mentions: List[Tuple[str, str]],
+                      spoilers: List[Tuple[int, List[Any], List[Any]]],
                       ) -> None:
         msg_info_view = MsgInfoView(self, msg,
                                     "Message Information (up/down scrolls)",
-                                    message_links, time_mentions)
+                                    message_links, time_mentions, spoilers)
         self.show_pop_up(msg_info_view)
 
     def show_stream_info(self, stream_id: int) -> None:
@@ -158,6 +159,11 @@ class Controller:
             AboutView(self, 'About', zt_version=ZT_VERSION,
                       server_version=self.model.server_version,
                       server_feature_level=self.model.server_feature_level)
+        )
+
+    def show_spoiler(self, content: str) -> None:
+        self.show_pop_up(
+            SpoilerView(self, 'Spoiler (up/down scrolls)', content)
         )
 
     def search_messages(self, text: str) -> None:

@@ -14,8 +14,8 @@ from zulipterminal.config.symbols import (
 from zulipterminal.helper import Message, asynch, match_stream, match_user
 from zulipterminal.ui_tools.boxes import PanelSearchBox
 from zulipterminal.ui_tools.buttons import (
-    HomeButton, MentionedButton, MessageLinkButton, PMButton, StarredButton,
-    StreamButton, TopicButton, UnreadPMButton, UserButton,
+    HomeButton, MentionedButton, MessageLinkButton, PMButton, SpoilerButton,
+    StarredButton, StreamButton, TopicButton, UnreadPMButton, UserButton,
 )
 from zulipterminal.ui_tools.utils import create_msg_box_list
 from zulipterminal.urwid_types import urwid_Size
@@ -1003,6 +1003,13 @@ class HelpView(PopUpView):
         super().__init__(controller, widgets, 'HELP', popup_width, title)
 
 
+class SpoilerView(PopUpView):
+    def __init__(self, controller: Any, title: str, content: str) -> None:
+        width = 64
+        widget = [urwid.Text(content)]
+        super().__init__(controller, widget, 'ENTER', width, title)
+
+
 class PopUpConfirmationView(urwid.Overlay):
     def __init__(self, controller: Any, question: Any,
                  success_callback: Callable[[], None]):
@@ -1084,6 +1091,7 @@ class MsgInfoView(PopUpView):
     def __init__(self, controller: Any, msg: Message, title: str,
                  message_links: 'OrderedDict[str, Tuple[str, int, bool]]',
                  time_mentions: List[Tuple[str, str]],
+                 spoilers: List[Tuple[int, List[Any], List[Any]]],
                  ) -> None:
         self.msg = msg
 
@@ -1095,6 +1103,8 @@ class MsgInfoView(PopUpView):
         # Render the category using the existing table methods if links exist.
         if message_links:
             msg_info.append(('Message Links', []))
+        if spoilers:
+            msg_info.append(('Spoilers', []))
         if time_mentions:
             msg_info.append(('Time mentions', time_mentions))
         if msg['reactions']:
@@ -1133,5 +1143,28 @@ class MsgInfoView(PopUpView):
             # 5 = 3 labels + 1 newline + 1 'Message Links' category label.
             widgets = widgets[:5] + message_link_widgets + widgets[5:]
             popup_width = max(popup_width, message_link_width)
+
+        if spoilers:
+            spoiler_buttons = []
+            spoiler_width = 0
+            for index, (header_len, header, content) in enumerate(spoilers):
+                spoiler_width = max(header_len, spoiler_width)
+                display_attr = None if index % 2 else 'popup_contrast'
+                spoiler_buttons.append(
+                    SpoilerButton(controller, header_len, header, content,
+                                  display_attr)
+                )
+
+            if message_links:
+                # 5 = 3 labels + 1 newline + 1 'Message Links' category label.
+                # +2 is for a newline and 'Spoilers' category label.
+                slice_index = 5 + len(message_link_widgets) + 2
+            else:
+                # 5 = 3 labels + 1 newline + 1 'Spoilers' category label.
+                slice_index = 5
+
+            widgets = (widgets[:slice_index] + spoiler_buttons
+                       + widgets[slice_index:])
+            popup_width = max(popup_width, spoiler_width)
 
         super().__init__(controller, widgets, 'MSG_INFO', popup_width, title)

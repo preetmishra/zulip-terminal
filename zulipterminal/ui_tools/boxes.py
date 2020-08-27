@@ -396,6 +396,7 @@ class MessageBox(urwid.Pile):
             OrderedDict()
         )   # type: OrderedDict[str, Tuple[str, int, bool]]
         self.time_mentions = list()  # type: List[Tuple[str, str]]
+        self.spoilers = list()  # type: List[Tuple[int, List[Any], List[Any]]]
         self.last_message = last_message
         # if this is the first message
         if self.last_message is None:
@@ -882,6 +883,25 @@ class MessageBox(urwid.Pile):
                     ' │\n',
                 ])
                 markup.extend(bottom_border)
+                # Spoiler content.
+                content = element.find(class_='spoiler-content')
+
+                # Remove surrounding newlines.
+                content_contents = content.contents
+                if len(content_contents) > 2:
+                    if content_contents[-1] == '\n':
+                        content.contents.pop(-1)
+                    if content_contents[0] == '\n':
+                        content.contents.pop(0)
+                if len(content_contents) == 1 and content_contents[0] == '\n':
+                    content.contents.pop(0)
+
+                # FIXME: Do not soup2markup content in the MessageBox as it
+                # will render 'sensitive' spoiler anchor tags in the footlinks.
+                processed_content = self.soup2markup(content)
+
+                self.spoilers.append((processed_header_len, processed_header,
+                                      processed_content))
             else:
                 markup.extend(self.soup2markup(element))
         return markup
@@ -1201,7 +1221,8 @@ class MessageBox(urwid.Pile):
         elif is_command_key('MSG_INFO', key):
             self.model.controller.show_msg_info(self.message,
                                                 self.message_links,
-                                                self.time_mentions)
+                                                self.time_mentions,
+                                                self.spoilers)
         return key
 
 
